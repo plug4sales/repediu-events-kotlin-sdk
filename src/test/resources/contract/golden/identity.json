@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "algorithm": {
+    "phone_prefix": "rpd:tel:",
+    "email_prefix": "rpd:mail:",
+    "default_country_code": "55",
+    "hash": "two 32-bit FNV-1a-style lanes over UTF-16 code units: h1 seed 0x811c9dc5 mult 0x01000193, h2 seed 0x01000193 mult 0x85ebca6b; output lowercase hex h1 then h2, 8 digits each",
+    "phone": "strip non-digits; 10 or 11 digits -> prefix 55; 12 or 13 digits -> unchanged; otherwise invalid",
+    "email": "trim then lowercase",
+    "precedence": "trimmed user_id, then phone, then email, else null"
+  },
+  "normalize_phone": [
+    {
+      "input": "11999998888",
+      "expected": "5511999998888"
+    },
+    {
+      "input": "1133334444",
+      "expected": "551133334444"
+    },
+    {
+      "input": "5511999998888",
+      "expected": "5511999998888"
+    },
+    {
+      "input": "551133334444",
+      "expected": "551133334444"
+    },
+    {
+      "input": "(11) 99999-8888",
+      "expected": "5511999998888"
+    },
+    {
+      "input": "+55 11 99999-8888",
+      "expected": "5511999998888"
+    },
+    {
+      "input": "123",
+      "expected": null
+    },
+    {
+      "input": "",
+      "expected": null
+    },
+    {
+      "input": "551199999888812345",
+      "expected": null
+    }
+  ],
+  "derive_user_id": [
+    {
+      "name": "user_id wins over phone",
+      "input": {
+        "user_id": "cliente-42",
+        "phone": "11999998888"
+      },
+      "expected": "cliente-42"
+    },
+    {
+      "name": "user_id is trimmed",
+      "input": {
+        "user_id": "  abc  "
+      },
+      "expected": "abc"
+    },
+    {
+      "name": "blank user_id falls through to phone",
+      "input": {
+        "user_id": "   ",
+        "phone": "11999998888"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "local mobile 11 digits",
+      "input": {
+        "phone": "11999998888"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "local landline 10 digits",
+      "input": {
+        "phone": "1133334444"
+      },
+      "expected": "rpd:tel:5dcd4c95c7fc16cb"
+    },
+    {
+      "name": "already with country code 13 digits",
+      "input": {
+        "phone": "5511999998888"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "already with country code 12 digits",
+      "input": {
+        "phone": "551133334444"
+      },
+      "expected": "rpd:tel:5dcd4c95c7fc16cb"
+    },
+    {
+      "name": "masked phone",
+      "input": {
+        "phone": "(11) 99999-8888"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "plus 55 with spaces",
+      "input": {
+        "phone": "+55 11 99999-8888"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "phone with dots and dashes",
+      "input": {
+        "phone": "11.99999-8888"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "too short phone, no email",
+      "input": {
+        "phone": "123"
+      },
+      "expected": null
+    },
+    {
+      "name": "too long phone, no email",
+      "input": {
+        "phone": "551199999888812345"
+      },
+      "expected": null
+    },
+    {
+      "name": "empty phone, no email",
+      "input": {
+        "phone": ""
+      },
+      "expected": null
+    },
+    {
+      "name": "invalid phone falls back to email",
+      "input": {
+        "phone": "123",
+        "email": "Ana@Loja.com"
+      },
+      "expected": "rpd:mail:95529d04d8e055e2"
+    },
+    {
+      "name": "email lowercased",
+      "input": {
+        "email": "Ana@Loja.COM"
+      },
+      "expected": "rpd:mail:95529d04d8e055e2"
+    },
+    {
+      "name": "email trimmed",
+      "input": {
+        "email": "  ana@loja.com  "
+      },
+      "expected": "rpd:mail:95529d04d8e055e2"
+    },
+    {
+      "name": "email uppercase equals lowercase",
+      "input": {
+        "email": "ANA@LOJA.COM"
+      },
+      "expected": "rpd:mail:95529d04d8e055e2"
+    },
+    {
+      "name": "phone wins over email",
+      "input": {
+        "phone": "11999998888",
+        "email": "ana@loja.com"
+      },
+      "expected": "rpd:tel:c176fa24a8ebda26"
+    },
+    {
+      "name": "email with accent (BMP)",
+      "input": {
+        "email": "JOSÉ@Loja.com"
+      },
+      "expected": "rpd:mail:13e1a38d64e6a4df"
+    },
+    {
+      "name": "nothing usable",
+      "input": {},
+      "expected": null
+    },
+    {
+      "name": "blank email",
+      "input": {
+        "email": "   "
+      },
+      "expected": null
+    }
+  ]
+}

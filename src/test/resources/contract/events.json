@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "note": "Event contract, read today only by the SDK tests. src/types.ts must match (tests/contract-file.test.ts). 'enforced_by_sdk' lists what the SDK itself rejects today; every other property rule is the documented contract of the helper that emits the event and is not validated at runtime.",
+  "enforced_by_sdk": {
+    "event_name_in_contract": true,
+    "identify_requires_any_of": ["user_id", "phone", "email"]
+  },
+  "events": {
+    "page_view": { "kind": "auto", "helper": null, "required": [], "optional": [] },
+    "page_leave": { "kind": "auto", "helper": null, "required": ["duration_ms", "max_scroll_percent"], "optional": [] },
+    "scroll_depth": { "kind": "auto", "helper": null, "required": ["percent"], "optional": [] },
+    "item_visible": { "kind": "auto", "helper": null, "required": ["item_id", "item_name", "visibility_ratio", "position_index"], "optional": ["category", "price", "original_price", "in_stock", "image_url"] },
+    "item_hidden": { "kind": "auto", "helper": null, "required": ["item_id", "item_name", "visible_ms"], "optional": ["category", "price", "original_price", "in_stock", "image_url"] },
+    "item_attention": { "kind": "auto", "helper": null, "required": ["item_id", "item_name", "visible_ms", "view_count", "max_visibility_ratio"], "optional": ["category", "price", "original_price", "in_stock", "image_url"] },
+    "item_revisit": { "kind": "auto", "helper": null, "required": ["item_id", "item_name", "total_visible_ms"], "optional": ["category", "price", "original_price", "in_stock", "image_url"] },
+    "promotion_visible": { "kind": "auto", "helper": null, "required": ["promotion_id", "promotion_name", "repediu_origin"], "optional": ["promotion_url"] },
+    "promotion_click": { "kind": "auto", "helper": null, "required": ["promotion_id", "promotion_name", "repediu_origin"], "optional": ["promotion_url"] },
+    "view_category": { "kind": "manual", "helper": "order.viewCategory", "required": ["category"], "optional": [] },
+    "view_item": { "kind": "manual", "helper": "order.viewItem", "required": ["item_id", "item_name"], "optional": ["category", "price", "currency"] },
+    "add_to_cart": { "kind": "manual", "helper": "order.addToCart", "required": ["item_id", "item_name", "quantity"], "optional": ["category", "price", "currency"], "defaults": { "quantity": 1 } },
+    "cart_sync": { "kind": "manual", "helper": "order.cartSync", "required": ["items"], "optional": [] },
+    "begin_checkout": { "kind": "manual", "helper": "order.beginCheckout", "required": [], "optional": ["step", "value", "currency", "item_count", "coupon", "delivery_type"] },
+    "purchase": { "kind": "manual", "helper": "order.placeOrder", "required": ["order_id", "value", "currency"], "optional": ["subtotal", "shipping", "discount", "payment_method", "coupon", "delivery_type", "items"], "defaults": { "currency": "BRL" } },
+    "order_cancelled": { "kind": "manual", "helper": "order.cancelOrder", "required": ["order_id"], "optional": ["reason", "value", "currency"] },
+    "search": { "kind": "manual", "helper": "search", "required": ["query"], "optional": [] },
+    "identify": { "kind": "manual", "helper": "identify", "required": [], "required_any_of": ["user_id", "phone", "email"], "optional": ["name", "email", "phone"], "notes": "properties.user_id is always set to the derived id" }
+  }
+}
